@@ -39,6 +39,27 @@ class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
                           self.snapshots_client.create_snapshot,
                           None, display_name=s_name)
 
+    @attr(type=['negative', 'gate'])
+    def test_delete_volume_with_dependent_snapshot(self):
+        # Should not be able to delete volume with a child snapshot
+        volume = {}
+        v_name = data_utils.rand_name('Volume-')
+        s_name = data_utils.rand_name('Snap-')
+        # Create volume
+        resp, volume = self.client.create_volume(size=1,
+                                                 display_name=v_name)
+        self.assertEqual(200, resp.status)
+        self.assertIn('id', volume)
+        self.addCleanup(self.client.delete_volume, volume['id'])
+        self.client.wait_for_volume_status(volume['id'], 'available')
+        # Create snapshot
+        resp, snapshot = self.client.create_snapshot(volume['id'],
+                                                     display_name=s_name)
+        self.assertEqual(200, resp.status)
+        self.assertIn('id', snapshot)
+        self.addCleanup(self.client.delete_snapshot, snapshot['id'])
+        self.assertRaises(exceptions.BadRequest, self.client.delete_volume, '')
+
 
 class VolumesSnapshotNegativeTestXML(VolumesSnapshotNegativeTest):
     _interface = "xml"

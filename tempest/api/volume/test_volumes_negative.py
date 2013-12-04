@@ -160,34 +160,24 @@ class VolumesNegativeTest(base.BaseVolumeTest):
     @attr(type=['negative', 'gate'])
     def test_delete_in_use_volume(self):
         # Should not be able to delete volume when state is in-use
-        # Create Volume
-        mountpoint = '/dev/vdc'
-        volume = {}
-        v_name = data_utils.rand_name('Volume-')
+        #Create instance server and attach volume
         srv_name = data_utils.rand_name('Instance-')
-        resp, volume = self.client.create_volume(size=1,
-                                                 display_name=v_name)
-        self.assertEqual(200, resp.status)
-        self.assertIn('id', volume)
-        self.addCleanup(self.client.delete_volume, volume['id'])
-        self.client.wait_for_volume_status(volume['id'], 'available')
-        # Create instance server and attach volume
         resp, server = self.servers_client.create_server(srv_name,
                                                          self.image_ref,
                                                          self.flavor_ref)
         self.addCleanup(self.servers_client.delete_server, server['id'])
         self.servers_client.wait_for_server_status(server['id'], 'ACTIVE')
-        resp, body = self.client.attach_volume(volume['id'],
+        resp, body = self.client.attach_volume(self.volume['id'],
                                                server['id'],
-                                               mountpoint)
+                                               self.mountpoint)
         self.assertEqual(202, resp.status)
-        self.client.wait_for_volume_status(volume['id'], 'in-use')
+        self.client.wait_for_volume_status(self.volume['id'], 'in-use')
         self.addCleanup(self.client.wait_for_volume_status,
-                        volume['id'],
+                        self.volume['id'],
                         'available')
-        self.addCleanup(self.client.detach_volume, volume['id'])
+        self.addCleanup(self.client.detach_volume, self.volume['id'])
         self.assertRaises(exceptions.BadRequest, self.client.delete_volume,
-                          volume['id'])
+                          self.volume['id'])
 
     @attr(type=['negative', 'gate'])
     def test_attach_volumes_with_nonexistent_volume_id(self):

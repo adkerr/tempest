@@ -23,6 +23,11 @@ from tempest.test import attr
 class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
     _interface = "json"
 
+    @classmethod
+    def setUpClass(cls):
+        super(VolumesSnapshotNegativeTest, cls).setUpClass()
+        cls.client = cls.volumes_client
+
     @attr(type=['negative', 'gate'])
     def test_create_snapshot_with_nonexistent_volume_id(self):
         # Create a snapshot with nonexistent volume id

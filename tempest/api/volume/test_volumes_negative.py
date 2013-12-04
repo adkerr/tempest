@@ -188,8 +188,6 @@ class VolumesNegativeTest(base.BaseVolumeTest):
         self.addCleanup(self.client.detach_volume, self.volume['id'])
         self.assertRaises(exceptions.BadRequest, self.client.delete_volume,
                           volume['id'])
-        self.client.reset_volume_status(volume['id'], 'available')
-        self.client.wait_for_volume_status(volume['id'], 'available')
 
     @attr(type=['negative', 'gate'])
     def test_attach_volumes_with_nonexistent_volume_id(self):

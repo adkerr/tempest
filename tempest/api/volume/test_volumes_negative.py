@@ -160,10 +160,10 @@ class VolumesNegativeTest(base.BaseVolumeTest):
     @attr(type=['negative', 'gate'])
     def test_delete_in_use_volume(self):
         # Should not be able to delete volume when state is in-use
-        #Create Volume
+        # Create Volume
         mountpoint = '/dev/vdc'
         volume = {}
-        v_name = data_utils.rand_name('Volume')
+        v_name = data_utils.rand_name('Volume-')
         srv_name = data_utils.rand_name('Instance-')
         resp, volume = self.client.create_volume(size=1,
                                                  display_name=v_name)
@@ -171,7 +171,7 @@ class VolumesNegativeTest(base.BaseVolumeTest):
         self.assertIn('id', volume)
         self.addCleanup(self.client.delete_volume, volume['id'])
         self.client.wait_for_volume_status(volume['id'], 'available')
-        #Create instance server and attach volume
+        # Create instance server and attach volume
         resp, server = self.servers_client.create_server(srv_name,
                                                          self.image_ref,
                                                          self.flavor_ref)
@@ -179,13 +179,13 @@ class VolumesNegativeTest(base.BaseVolumeTest):
         self.servers_client.wait_for_server_status(server['id'], 'ACTIVE')
         resp, body = self.client.attach_volume(volume['id'],
                                                server['id'],
-                                               self.mountpoint)
+                                               mountpoint)
         self.assertEqual(202, resp.status)
-        self.client.wait_for_volume_status(self.volume['id'], 'in-use')
+        self.client.wait_for_volume_status(volume['id'], 'in-use')
         self.addCleanup(self.client.wait_for_volume_status,
-                        self.volume['id'],
+                        volume['id'],
                         'available')
-        self.addCleanup(self.client.detach_volume, self.volume['id'])
+        self.addCleanup(self.client.detach_volume, volume['id'])
         self.assertRaises(exceptions.BadRequest, self.client.delete_volume,
                           volume['id'])
 

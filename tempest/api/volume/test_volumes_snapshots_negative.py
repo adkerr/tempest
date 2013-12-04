@@ -23,11 +23,6 @@ from tempest.test import attr
 class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
     _interface = "json"
 
-    @classmethod
-    def setUpClass(cls):
-        super(VolumesSnapshotNegativeTest, cls).setUpClass()
-        cls.client = cls.volumes_client
-
     @attr(type=['negative', 'gate'])
     def test_create_snapshot_with_nonexistent_volume_id(self):
         # Create a snapshot with nonexistent volume id
@@ -51,19 +46,19 @@ class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
         v_name = data_utils.rand_name('Volume-')
         s_name = data_utils.rand_name('Snap-')
         # Create volume
-        resp, volume = self.client.create_volume(size=1,
+        resp, volume = self.volumes_client.create_volume(size=1,
                                                  display_name=v_name)
         self.assertEqual(200, resp.status)
         self.assertIn('id', volume)
-        self.addCleanup(self.client.delete_volume, volume['id'])
-        self.client.wait_for_volume_status(volume['id'], 'available')
+        self.addCleanup(self.volumes_client.delete_volume, volume['id'])
+        self.volumes_client.wait_for_volume_status(volume['id'], 'available')
         # Create snapshot
-        resp, snapshot = self.client.create_snapshot(volume['id'],
+        resp, snapshot = self.snapshots_client.create_snapshot(volume['id'],
                                                      display_name=s_name)
         self.assertEqual(200, resp.status)
         self.assertIn('id', snapshot)
-        self.addCleanup(self.client.delete_snapshot, snapshot['id'])
-        self.assertRaises(exceptions.BadRequest, self.client.delete_volume, '')
+        self.addCleanup(self.snapshots_client.delete_snapshot, snapshot['id'])
+        self.assertRaises(exceptions.BadRequest, self.volumes_client.delete_volume, '')
 
 
 class VolumesSnapshotNegativeTestXML(VolumesSnapshotNegativeTest):

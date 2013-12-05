@@ -97,6 +97,23 @@ class VolumesSnapshotTest(base.BaseVolumeTest):
         self.volumes_client.wait_for_resource_deletion(volume['id'])
         self.clear_snapshots()
 
+    @attr(type='gate')
+    def test_larger_volume_from_snapshot(self):
+        # Create a temporary snap using wrapper method from base, then
+        # create a snap based volume where volume size > snap size,
+        # check resp code and size and deletes it
+        snapshot = self.create_snapshot(self.volume_origin['id'])
+        vol_size = self.volume_origin['size'] + 1
+        resp, volume = self.volumes_client.create_volume(
+            size=vol_size,
+            snapshot_id=snapshot['id'])
+        self.assertEqual(200, resp.status)
+        self.assertEqual(vol_size, volume['size'])
+        self.volumes_client.wait_for_volume_status(volume['id'], 'available')
+        self.volumes_client.delete_volume(volume['id'])
+        self.volumes_client.wait_for_resource_deletion(volume['id'])
+        self.clear_snapshots()
+
 
 class VolumesSnapshotTestXML(VolumesSnapshotTest):
     _interface = "xml"

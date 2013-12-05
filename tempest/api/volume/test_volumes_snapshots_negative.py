@@ -18,7 +18,8 @@ import uuid
 from tempest.api.volume import base
 from tempest.common.utils import data_utils
 from tempest import exceptions
-from tempest.test import attr, skip_because
+from tempest.test import attr
+from tempest.test import skip_because
 
 
 class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
@@ -50,8 +51,8 @@ class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
     def test_delete_volume_with_dependent_snapshot(self):
         # Should not be able to delete volume with a child snapshot
         volume = {}
-        v_name = data_utils.rand_name('Volume-')
-        s_name = data_utils.rand_name('Snap-')
+        v_name = data_utils.rand_name('Volume')
+        s_name = data_utils.rand_name('Snapshot')
         # Create volume
         resp, volume = self.vol_client.create_volume(size=1,
                                                  display_name=v_name)

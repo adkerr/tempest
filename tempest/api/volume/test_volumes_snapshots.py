@@ -103,7 +103,7 @@ class VolumesSnapshotTest(base.BaseVolumeTest):
         # create a snap based volume where volume size > snap size,
         # check resp code and size and deletes it
         snapshot = self.create_snapshot(self.volume_origin['id'])
-        vol_size = self.volume_origin['size'] + 1
+        vol_size = int(self.volume_origin['size']) + 1
         resp, volume = self.volumes_client.create_volume(
             size=vol_size,
             snapshot_id=snapshot['id'])

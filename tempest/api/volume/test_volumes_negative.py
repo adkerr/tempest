@@ -20,7 +20,7 @@ import uuid
 from tempest.api.volume import base
 from tempest.common.utils import data_utils
 from tempest import exceptions
-from tempest.test import attr
+from tempest.test import attr. skip_because
 
 
 class VolumesNegativeTest(base.BaseVolumeTest):
@@ -160,7 +160,7 @@ class VolumesNegativeTest(base.BaseVolumeTest):
     @attr(type=['negative', 'gate'])
     def test_delete_in_use_volume(self):
         # Should not be able to delete volume when state is in-use
-        #Create instance server and attach volume
+        # Create instance server and attach volume
         srv_name = data_utils.rand_name('Instance-')
         resp, server = self.servers_client.create_server(srv_name,
                                                          self.image_ref,
@@ -292,3 +292,7 @@ class VolumesNegativeTest(base.BaseVolumeTest):
 
 class VolumesNegativeTestXML(VolumesNegativeTest):
     _interface = 'xml'
+    
+    @skip_because(bug="1255174")
+    def test_delete_in_use_volume(self):
+        pass

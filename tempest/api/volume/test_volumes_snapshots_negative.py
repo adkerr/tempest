@@ -30,20 +30,6 @@ class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
         cls.vol_client = cls.volumes_client
         cls.snap_client = cls.snapshots_client
 
-    def _wait_for_snapshot_delete(self, snap_id):
-        """Waits for a Snapshot to finish deleting."""
-        start_time = time.time()
-        while True:
-            dtime = time.time() - start_time
-            time.sleep(self.snap_client.build_interval)
-            if self.snap_client.is_resource_deleted(snap_id):
-                return
-            if dtime > self.snap_client.build_timeout:
-                message = ('Time Limit Exceeded! (%ds)'
-                           'while waiting for snapshot deletion.' %
-                           (self.build_timeout))
-                raise exceptions.TimeoutException(message)
-
     @attr(type=['negative', 'gate'])
     def test_create_snapshot_with_nonexistent_volume_id(self):
         # Create a snapshot with nonexistent volume id
@@ -78,7 +64,7 @@ class VolumesSnapshotNegativeTest(base.BaseVolumeTest):
                                                      display_name=s_name)
         self.assertEqual(200, resp.status)
         self.assertIn('id', snapshot)
-        self.addCleanup(self._wait_for_snapshot_delete, snapshot['id'])
+        self.addCleanup(self.snap_client.wait_for_resource_deletion, snapshot['id'])
         self.addCleanup(self.snap_client.delete_snapshot, snapshot['id'])
         self.snap_client.wait_for_snapshot_status(snapshot['id'], 'available')
         self.assertRaises(exceptions.BadRequest,

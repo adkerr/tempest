@@ -108,7 +108,7 @@ class VolumesSnapshotTest(base.BaseVolumeTest):
             size=vol_size,
             snapshot_id=snapshot['id'])
         self.assertEqual(200, resp.status)
-        self.assertEqual(vol_size, volume['size'])
+        self.assertEqual(vol_size, int(volume['size']))
         self.volumes_client.wait_for_volume_status(volume['id'], 'available')
         self.volumes_client.delete_volume(volume['id'])
         self.volumes_client.wait_for_resource_deletion(volume['id'])

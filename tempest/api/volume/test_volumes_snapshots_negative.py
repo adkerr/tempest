@@ -77,4 +77,4 @@ class VolumesSnapshotNegativeTestXML(VolumesSnapshotNegativeTest):
     
     @skip_because(bug="1255174")
     def test_delete_volume_with_dependent_snapshot(self):
-        continue
+        pass

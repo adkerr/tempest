@@ -55,6 +55,11 @@ class BaseVolumeTest(tempest.test.BaseTestCase):
                                          cls.os.auth_url,
                                          cls.volumes_client.service,
                                          cls.os.tenant_name)
+        cls.backups_client.keystone_auth(cls.os.username,
+                                         cls.os.password,
+                                         cls.os.auth_url,
+                                         cls.volumes_client.service,
+                                         cls.os.tenant_name)
 
     @classmethod
     def tearDownClass(cls):

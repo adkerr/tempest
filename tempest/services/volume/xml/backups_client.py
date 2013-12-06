@@ -12,64 +12,74 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import time
 import urllib
 
-from tempest.common.rest_client import RestClient
+from lxml import etree
+
+from tempest.common.rest_client import RestClientXML
 from tempest import exceptions
 from tempest.openstack.common import log as logging
+from tempest.services.compute.xml.common import Document
+from tempest.services.compute.xml.common import Element
+from tempest.services.compute.xml.common import xml_to_json
+from tempest.services.compute.xml.common import XMLNS_11
 
 LOG = logging.getLogger(__name__)
 
 
-class BackupsClientJSON(RestClient):
+class BackupsClientXML(RestClientXML):
     """Client class to send CRUD Volume API requests."""
 
     def __init__(self, config, username, password, auth_url, tenant_name=None):
-        super(BackupsClientJSON, self).__init__(config, username, password,
-                                                  auth_url, tenant_name)
+        super(BackupsClientXML, self).__init__(config, username, password,
+                                                 auth_url, tenant_name)
 
         self.service = self.config.volume.catalog_type
         self.build_interval = self.config.volume.build_interval
         self.build_timeout = self.config.volume.build_timeout
 
-    def create_backup(self, volume_id, **kwargs):
-        """
-        Creates a new backup.
-        volume_id(Required): Volume to be backed up.
-        Following optional keyword arguments are accepted:
+    def create_snapshot(self, volume_id, **kwargs):
+        """Creates a new backup.
+        volume_id(Required): id of the volume.
         container: Optional backup container name.
         name: Optional backup name.
         description: Optional backup description.
         """
-        post_body = {'volume_id': volume_id}
-        post_body.update(kwargs)
-        post_body = json.dumps({'backup': post_body})
-        resp, body = self.post('backups', post_body, self.headers)
-        body = json.loads(body)
-        return resp, body['backup']
+        backup = Element("backup", xmlns=XMLNS_11, volume_id=volume_id)
+        for key, value in kwargs.items():
+            backup.add_attr(key, value)
+        resp, body = self.post('backups', str(Document(backup)),
+                               self.headers)
+        body = xml_to_json(etree.fromstring(body))
+        return resp, body
 
     def list_backups(self):
-        """List all the backups created."""
+        """List all backups."""
         url = 'backups'
-        resp, body = self.get(url)
-        body = json.loads(body)
-        return resp, body['backups']
+        resp, body = self.get(url, self.headers)
+        body = etree.fromstring(body)
+        backups = []
+        for back in body:
+            backups.append(xml_to_json(back))
+        return resp, backups
 
     def list_backups_with_detail(self):
         """List details of all the backups created."""
         url = 'backups/detail'
-        resp, body = self.get(url)
-        body = json.loads(body)
-        return resp, body['backups']
+        resp, body = self.get(url, self.headers)
+        body = etree.fromstring(body)
+        backups = []
+        for back in body:
+            backups.append(xml_to_json(back))
+        return resp, backups
 
     def get_backup(self, backup_id):
         """Returns the details of a single backup."""
         url = "backups/%s" % str(backup_id)
-        resp, body = self.get(url)
-        body = json.loads(body)
-        return resp, body['backup']
+        resp, body = self.get(url, self.headers)
+        body = etree.fromstring(body)
+        return resp, xml_to_json(body)
 
     def restore_backup(self, backup_id, **kwargs):
         """
@@ -78,14 +88,14 @@ class BackupsClientJSON(RestClient):
         Following optional keyword argument is accepted:
         volume_id: Optional volume to restore to.
         """
-        post_body = {}
-        post_body.update(kwargs)
-        post_body = json.dumps({'restore': post_body})
+        restore = Element("restore", xmlns=XMLNS_11)
+        for key, value in kwargs.items():
+            restore.add_attr(key, value)
         resp, body = self.post('backups/%s/restore' % str(backup_id),
-                               post_body,
+                               str(Document(restore)),
                                self.headers)
-        body = json.loads(body)
-        return resp, body['restore']
+        body = xml_to_json(etree.fromstring(body))
+        return resp, body
 
     def delete_backup(self, backup_id):
         """Delete Backup."""

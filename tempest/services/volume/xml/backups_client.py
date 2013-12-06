@@ -39,7 +39,7 @@ class BackupsClientXML(RestClientXML):
         self.build_interval = self.config.volume.build_interval
         self.build_timeout = self.config.volume.build_timeout
 
-    def create_snapshot(self, volume_id, **kwargs):
+    def create_backup(self, volume_id, **kwargs):
         """Creates a new backup.
         volume_id(Required): id of the volume.
         container: Optional backup container name.

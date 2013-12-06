@@ -44,7 +44,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')
@@ -55,7 +55,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')
@@ -73,7 +73,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')
@@ -91,7 +91,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.client.wait_for_backup_status(backup['id'], 'available')
         
@@ -105,7 +105,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')
@@ -126,7 +126,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         b_name = data_utils.rand_name('backup')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
                                         name=b_name)
-        self.assertEqual(200, resp.status)
+        self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')

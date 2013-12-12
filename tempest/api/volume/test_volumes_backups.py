@@ -26,6 +26,11 @@ class VolumesBackupTest(base.BaseVolumeTest):
     @classmethod
     def setUpClass(cls):
         super(VolumesBackupTest, cls).setUpClass()
+
+        if not cls.config.service_available.swift:
+            skip_msg = ("%s skipped as Swift is not available" % cls.__name__)
+            raise cls.skipException(skip_msg)
+
         cls.client = cls.backups_client
         try:
             cls.volume_origin = cls.create_volume()
@@ -38,27 +43,25 @@ class VolumesBackupTest(base.BaseVolumeTest):
     def tearDownClass(cls):
         super(VolumesBackupTest, cls).tearDownClass()
 
-    @attr(type='gate')
-    def test_backup_create(self):
+    def _create_backup(self, volume_id):
         # Create a backup
         b_name = data_utils.rand_name('backup')
-        resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
+        resp, backup = self.client.create_backup(volume_id, name=b_name)
         self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.addCleanup(self.client.delete_backup, backup['id'])
         self.client.wait_for_backup_status(backup['id'], 'available')
+        return backup
+
+    @attr(type='gate')
+    def test_backup_create(self):
+        # Create a backup
+        self._create_backup(self.volume_origin['id'])
 
     @attr(type='gate')
     def test_backup_list(self):
         # Create a backup
-        b_name = data_utils.rand_name('backup')
-        resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
-        self.assertEqual(202, resp.status)
-        self.assertIn('id', backup)
-        self.addCleanup(self.client.delete_backup, backup['id'])
-        self.client.wait_for_backup_status(backup['id'], 'available')
+        backup = self._create_backup(self.volume_origin['id'])
 
         # Compare with the output from the list action
         tracking_data = (backup['id'], backup['name'])
@@ -70,13 +73,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
     @attr(type='gate')
     def test_backup_get(self):
         # Create a backup
-        b_name = data_utils.rand_name('backup')
-        resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
-        self.assertEqual(202, resp.status)
-        self.assertIn('id', backup)
-        self.addCleanup(self.client.delete_backup, backup['id'])
-        self.client.wait_for_backup_status(backup['id'], 'available')
+        backup = self._create_backup(self.volume_origin['id'])
 
         # Get the backup and check for some of its details
         resp, back_get = self.client.get_backup(backup['id'])
@@ -89,8 +86,10 @@ class VolumesBackupTest(base.BaseVolumeTest):
     def test_backup_delete(self):
         # Create a backup
         b_name = data_utils.rand_name('backup')
+        c_name = data_utils.rand_name('container')
         resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
+                                                 container=c_name,
+                                                 name=b_name)
         self.assertEqual(202, resp.status)
         self.assertIn('id', backup)
         self.client.wait_for_backup_status(backup['id'], 'available')
@@ -102,13 +101,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
     @attr(type='gate')
     def test_backup_restore(self):
         # Create a backup
-        b_name = data_utils.rand_name('backup')
-        resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
-        self.assertEqual(202, resp.status)
-        self.assertIn('id', backup)
-        self.addCleanup(self.client.delete_backup, backup['id'])
-        self.client.wait_for_backup_status(backup['id'], 'available')
+        backup = self._create_backup(self.volume_origin['id'])
         
         # Restore backup to new volume
         vol_client = self.volumes_client
@@ -117,19 +110,12 @@ class VolumesBackupTest(base.BaseVolumeTest):
         self.assertIn('volume_id', restore)
         self.addCleanup(vol_client.delete_volume,
                         restore['volume_id'])
-        vol_client.wait_for_volume_status(restore['volume_id'],
-                                                  'available')
+        vol_client.wait_for_volume_status(restore['volume_id'], 'available')
 
     @attr(type='gate')
     def test_backup_restore_to_volume(self):
         # Create a backup
-        b_name = data_utils.rand_name('backup')
-        resp, backup = self.client.create_backup(self.volume_origin['id'],
-                                        name=b_name)
-        self.assertEqual(202, resp.status)
-        self.assertIn('id', backup)
-        self.addCleanup(self.client.delete_backup, backup['id'])
-        self.client.wait_for_backup_status(backup['id'], 'available')
+        backup = self._create_backup(self.volume_origin['id'])
 
         # Create target volume
         vol_client = self.volumes_client
@@ -146,8 +132,7 @@ class VolumesBackupTest(base.BaseVolumeTest):
         self.assertEqual(202, resp.status)
         self.assertIn('volume_id', restore)
         self.assertEqual(target['id'], restore['volume_id'])
-        vol_client.wait_for_volume_status(restore['volume_id'],
-                                                  'available')
+        vol_client.wait_for_volume_status(restore['volume_id'], 'available')
 
 class VolumesBackupTestXML(VolumesBackupTest):
     _interface = "xml"

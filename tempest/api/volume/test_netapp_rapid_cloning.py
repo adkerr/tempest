@@ -53,12 +53,13 @@ class RapidCloningTest(base.BaseVolumeTest):
         cls.client.wait_for_volume_status(cls.volume['id'], 'available')
         
         # Grab mount locations
-        mount = subprocess.check_output("mount | grep nfs | grep cinder")
+        mount = subprocess.check_output("mount")
         # subprocess.check_output returns byte string
         mount = mount.decode("utf-8")
         mountlines = mount.splitlines()
         for line in mountlines:
-            cls.mounts.append(line.split()[2])
+            if "nfs" in line and "cinder" in line:
+                cls.mounts.append(line.split()[2])
         
     @classmethod
     def tearDownClass(cls):

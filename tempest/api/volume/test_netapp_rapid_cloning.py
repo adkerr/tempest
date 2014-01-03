@@ -27,8 +27,8 @@ from tempest.openstack.common import log as logging
 from tempest.test import attr
 
 class RapidCloningTest(base.BaseVolumeTest):
-
     _interface = 'json'
+    LOG = logging.getLogger(__name__)
 
     @classmethod
     def setUpClass(cls):

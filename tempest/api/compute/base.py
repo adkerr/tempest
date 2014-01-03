@@ -100,9 +100,8 @@ class BaseComputeTest(tempest.test.BaseTestCase):
             except exceptions.NotFound:
                 # The image may have already been deleted which is OK.
                 pass
-            except Exception as exc:
-                LOG.info('Exception raised deleting image %s', image_id)
-                LOG.exception(exc)
+            except Exception:
+                LOG.exception('Exception raised deleting image %s' % image_id)
                 pass
 
     @classmethod
@@ -214,8 +213,8 @@ class BaseV2ComputeTest(BaseComputeTest):
             try:
                 cls.servers_client.delete_server(server_id)
                 cls.servers_client.wait_for_server_termination(server_id)
-            except Exception as exc:
-                LOG.exception(exc)
+            except Exception:
+                LOG.exception('Failed to delete server %s' % server_id)
                 pass
         resp, server = cls.create_test_server(wait_until='ACTIVE', **kwargs)
         cls.password = server['adminPass']
@@ -260,13 +259,20 @@ class BaseV3ComputeTest(BaseComputeTest):
 
         cls.servers_client = cls.os.servers_v3_client
         cls.images_client = cls.os.image_client
+        cls.flavors_client = cls.os.flavors_v3_client
         cls.services_client = cls.os.services_v3_client
         cls.extensions_client = cls.os.extensions_v3_client
         cls.availability_zone_client = cls.os.availability_zone_v3_client
         cls.interfaces_client = cls.os.interfaces_v3_client
         cls.hypervisor_client = cls.os.hypervisor_v3_client
+        cls.keypairs_client = cls.os.keypairs_v3_client
         cls.tenant_usages_client = cls.os.tenant_usages_v3_client
         cls.volumes_client = cls.os.volumes_client
+        cls.certificates_client = cls.os.certificates_v3_client
+        cls.keypairs_client = cls.os.keypairs_v3_client
+        cls.aggregates_client = cls.os.aggregates_v3_client
+        cls.hosts_client = cls.os.hosts_v3_client
+        cls.quotas_client = cls.os.quotas_v3_client
 
     @classmethod
     def create_image_from_server(cls, server_id, **kwargs):
@@ -293,8 +299,8 @@ class BaseV3ComputeTest(BaseComputeTest):
         try:
             cls.servers_client.delete_server(server_id)
             cls.servers_client.wait_for_server_termination(server_id)
-        except Exception as exc:
-            LOG.exception(exc)
+        except Exception:
+            LOG.exception('Failed to delete server %s' % server_id)
             pass
         resp, server = cls.create_test_server(wait_until='ACTIVE', **kwargs)
         cls.password = server['admin_password']
@@ -325,9 +331,13 @@ class BaseV3ComputeAdminTest(BaseV3ComputeTest):
             os_adm = clients.ComputeAdminManager(interface=cls._interface)
 
         cls.os_adm = os_adm
-        cls.severs_admin_client = cls.os_adm.servers_v3_client
+        cls.servers_admin_client = cls.os_adm.servers_v3_client
         cls.services_admin_client = cls.os_adm.services_v3_client
         cls.availability_zone_admin_client = \
             cls.os_adm.availability_zone_v3_client
         cls.hypervisor_admin_client = cls.os_adm.hypervisor_v3_client
         cls.tenant_usages_admin_client = cls.os_adm.tenant_usages_v3_client
+        cls.flavors_admin_client = cls.os_adm.flavors_v3_client
+        cls.aggregates_admin_client = cls.os_adm.aggregates_v3_client
+        cls.hosts_admin_client = cls.os_adm.hosts_v3_client
+        cls.quotas_admin_client = cls.os_adm.quotas_v3_client

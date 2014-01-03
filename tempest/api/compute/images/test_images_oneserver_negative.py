@@ -45,10 +45,11 @@ class ImagesOneServerNegativeTestJSON(base.BaseV2ComputeTest):
         try:
             self.servers_client.wait_for_server_status(self.server_id,
                                                        'ACTIVE')
-        except Exception as exc:
-            LOG.exception(exc)
+        except Exception:
+            LOG.exception('server %s timed out to become ACTIVE. rebuilding'
+                          % self.server_id)
             # Rebuild server if cannot reach the ACTIVE state
-            # Usually it means the server had a serius accident
+            # Usually it means the server had a serious accident
             self._reset_server()
 
     def _reset_server(self):
@@ -86,11 +87,15 @@ class ImagesOneServerNegativeTestJSON(base.BaseV2ComputeTest):
     @skip_because(bug="1006725")
     @attr(type=['negative', 'gate'])
     def test_create_image_specify_multibyte_character_image_name(self):
-        # Return an error if the image name has multi-byte characters
-        snapshot_name = data_utils.rand_name('\xef\xbb\xbf')
+        if self.__class__._interface == "xml":
+            raise self.skipException("Not testable in XML")
+        # invalid multibyte sequence from:
+        # http://stackoverflow.com/questions/1301402/
+        #     example-invalid-utf8-string
+        invalid_name = data_utils.rand_name(u'\xc3\x28')
         self.assertRaises(exceptions.BadRequest,
                           self.client.create_image, self.server_id,
-                          snapshot_name)
+                          invalid_name)
 
     @attr(type=['negative', 'gate'])
     def test_create_image_specify_invalid_metadata(self):

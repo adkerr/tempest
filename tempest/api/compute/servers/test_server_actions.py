@@ -20,21 +20,21 @@ import time
 
 import testtools
 
-from tempest.api import compute
 from tempest.api.compute import base
 from tempest.common.utils import data_utils
 from tempest.common.utils.linux.remote_client import RemoteClient
-import tempest.config
+from tempest import config
 from tempest import exceptions
 from tempest.test import attr
 from tempest.test import skip_because
 
+CONF = config.CONF
+
 
 class ServerActionsTestJSON(base.BaseV2ComputeTest):
     _interface = 'json'
-    resize_available = tempest.config.TempestConfig().\
-        compute_feature_enabled.resize
-    run_ssh = tempest.config.TempestConfig().compute.run_ssh
+    resize_available = CONF.compute_feature_enabled.resize
+    run_ssh = CONF.compute.run_ssh
 
     def setUp(self):
         # NOTE(afazekas): Normally we use the same server with all test cases,
@@ -53,7 +53,7 @@ class ServerActionsTestJSON(base.BaseV2ComputeTest):
         cls.client = cls.servers_client
         cls.server_id = cls.rebuild_server(None)
 
-    @testtools.skipUnless(compute.CHANGE_PASSWORD_AVAILABLE,
+    @testtools.skipUnless(CONF.compute_feature_enabled.change_password,
                           'Change password not available.')
     @attr(type='gate')
     def test_change_server_password(self):
@@ -67,7 +67,7 @@ class ServerActionsTestJSON(base.BaseV2ComputeTest):
             # Verify that the user can authenticate with the new password
             resp, server = self.client.get_server(self.server_id)
             linux_client = RemoteClient(server, self.ssh_user, new_password)
-            self.assertTrue(linux_client.can_authenticate())
+            linux_client.validate_authentication()
 
     @attr(type='smoke')
     def test_reboot_server_hard(self):
@@ -141,7 +141,7 @@ class ServerActionsTestJSON(base.BaseV2ComputeTest):
         if self.run_ssh:
             # Verify that the user can authenticate with the provided password
             linux_client = RemoteClient(server, self.ssh_user, password)
-            self.assertTrue(linux_client.can_authenticate())
+            linux_client.validate_authentication()
 
     @attr(type='gate')
     def test_rebuild_server_in_stop_state(self):

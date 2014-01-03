@@ -17,6 +17,7 @@
 #    under the License.
 import os.path
 import subprocess
+import time
 
 #import netapp
 
@@ -84,6 +85,7 @@ class RapidCloningTest(base.BaseVolumeTest):
         self.assertEqual(200, resp.status)
         self.addCleanup(self._delete_volume, body['id'])
         self.client.wait_for_volume_status(body['id'], 'available')
+        time.sleep(5)
         # Search the nfs mounts for the cached image
         found = False
         failure_msg = ''

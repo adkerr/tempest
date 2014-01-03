@@ -26,8 +26,6 @@ from tempest.common.utils import data_utils
 from tempest.openstack.common import log as logging
 from tempest.test import attr
 
-LOG = logging.getLogger(__name__)
-
 class RapidCloningTest(base.BaseVolumeTest):
 
     _interface = 'json'
@@ -90,10 +88,13 @@ class RapidCloningTest(base.BaseVolumeTest):
         found = False
         failure_msg = ''
         for mount in self.mounts:
-            if os.path.isfile('%s/img-cache-%s' %(mount, self.image_id)):
+            path = '%s/img-cache-%s' %(mount, self.image_id)
+            self.LOG.debug('Checking if %s is a file' %(path))
+            if os.path.isfile(path):
+                self.LOG.info('%s exists' %(path))
                 found = True
                 break
             else:
-                failure_msg += '%s/img-cache-%s does not exist\n' %(mount,
-                                                                  self.image_id)
+                self.LOG.debug('%s is not a file' %(path))
+                failure_msg += '%s does not exist\n' %(path)
         self.assertTrue(found, failure_msg)

@@ -97,7 +97,3 @@ class RapidCloningTest(base.BaseVolumeTest):
                 failure_msg += '%s/img-cache-%s does not exist\n' %(mount,
                                                                   self.image_id)
         self.assertTrue(found, failure_msg)
-
-class RapidCloningTestXML(RapidCloningTest):
-    
-    _interface = 'xml'

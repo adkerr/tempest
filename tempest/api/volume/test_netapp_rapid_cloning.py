@@ -18,7 +18,7 @@
 import os.path
 import subprocess
 
-import netapp
+#import netapp
 
 from tempest.api.volume import base
 from tempest.common.utils import data_utils

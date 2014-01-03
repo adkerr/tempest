@@ -28,7 +28,7 @@ from tempest.test import attr
 
 LOG = logging.getLogger(__name__)
 
-class RapidCloningTest(base.BaseVolumeV1Test):
+class RapidCloningTest(base.BaseVolumeTest):
 
     _interface = 'json'
 

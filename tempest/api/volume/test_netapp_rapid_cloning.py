@@ -92,7 +92,7 @@ class RapidCloningTest(base.BaseVolumeTest):
                 break
         self.assertTrue(found,
                         'img-cache-%s not found in %s' %(self.image_id,
-                                                         self.mountlines))
+                                                         self.mounts))
 
 class RapidCloningTestXML(RapidCloningTest):
     

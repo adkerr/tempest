@@ -77,7 +77,7 @@ class RapidCloningTest(base.BaseVolumeTest):
         resp, body = self.client.create_volume(size=1,
                                                display_name=vol_name,
                                                image_id=self.image_id)
-        self.assertEqual(202, resp.status)
+        self.assertEqual(200, resp.status)
         self.addCleanUp(self.client.delete_volume, body['id'])
         self.client.wait_for_volume_status(body['id'], 'available')
         # Search the nfs mounts for the cached image

@@ -96,5 +96,4 @@ class RapidCloningTest(base.BaseVolumeTest):
                 break
             else:
                 self.LOG.debug('NO')
-                failure_msg += '%s does not exist\n' %(path)
-        self.assertTrue(found, failure_msg)
+        self.assertTrue(found, 'img-cache-%s does not exist' %(self.image_id))

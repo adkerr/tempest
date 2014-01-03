@@ -89,12 +89,12 @@ class RapidCloningTest(base.BaseVolumeTest):
         failure_msg = ''
         for mount in self.mounts:
             path = '%s/img-cache-%s' %(mount, self.image_id)
-            self.LOG.debug('Checking if %s is a file' %(path))
+            self.LOG.debug('Checking if %s is a file...' %(path))
             if os.path.isfile(path):
                 self.LOG.info('%s exists' %(path))
                 found = True
                 break
             else:
-                self.LOG.debug('%s is not a file' %(path))
+                self.LOG.debug('NO')
                 failure_msg += '%s does not exist\n' %(path)
         self.assertTrue(found, failure_msg)

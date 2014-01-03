@@ -87,7 +87,7 @@ class RapidCloningTest(base.BaseVolumeTest):
         # Search the nfs mounts for the cached image
         found = False
         for mount in self.mounts:
-            if os.path.isfile(mount + '/img-cache-' + self.image_id):
+            if os.path.isfile('%s/img-cache-%s' %(mount, self.image_id)):
                 found = True
                 break
         self.assertTrue(found,

@@ -86,13 +86,15 @@ class RapidCloningTest(base.BaseVolumeTest):
         self.client.wait_for_volume_status(body['id'], 'available')
         # Search the nfs mounts for the cached image
         found = False
+        failure_msg = ''
         for mount in self.mounts:
             if os.path.isfile('%s/img-cache-%s' %(mount, self.image_id)):
                 found = True
                 break
-        self.assertTrue(found,
-                        'img-cache-%s not found in %s' %(self.image_id,
-                                                         self.mounts))
+            else:
+                failure_msg += '%s/img-cache-%s does not exist\n' %(mount,
+                                                                  self.image_id)
+        self.assertTrue(found, failure_msg)
 
 class RapidCloningTestXML(RapidCloningTest):
     

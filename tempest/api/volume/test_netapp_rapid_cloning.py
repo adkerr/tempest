@@ -86,7 +86,7 @@ class RapidCloningTest(base.BaseVolumeTest):
             if os.path.isfile(mount + '/img-cache-' + self.image_id):
                 found = True
                 break
-        self.assertTrue(found)
+        self.assertTrue(found, 'img-cache-%s not found' %(self.image_id))
 
 class RapidCloningTestXML(RapidCloningTest):
     

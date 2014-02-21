@@ -173,7 +173,7 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
 
     @classmethod
     def setUpClass(cls):
-        super(VolumesActionsTest, cls).setUpClass()
+        super(VolumesActionsTestNetApp, cls).setUpClass()
         cls.client = cls.volumes_client
         cls.image_client = cls.os.image_client
 

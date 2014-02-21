@@ -216,7 +216,7 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
         for x in range(0, 5):
             resp, volume = self.client.get_volume(self.volume['id'])
             self.assertEqual(200, resp.status)
-            extend_size = int(self.volume['size']) + 1
+            extend_size = int(volume['size']) + 1
             self._extend_vol(extend_size)
 
 

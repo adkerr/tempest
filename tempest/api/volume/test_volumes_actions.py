@@ -116,6 +116,29 @@ class VolumesActionsTest(base.BaseVolumeV1Test):
         resp, volume = self.client.get_volume(self.volume['id'])
         self.assertEqual(200, resp.status)
         self.assertEqual(int(volume['size']), extend_size)
+    
+    def test_volume_extend_large_op(self):
+        # Extend a volume by a very large amount.
+        extend_size = int(self.volume['size']) * 200
+        resp, body = self.client.extend_volume(self.volume['id'], extend_size)
+        self.assertEqual(202, resp.status)
+        self.client.wait_for_volume_status(self.volume['id'], 'available')
+        resp, volume = self.client.get_volume(self.volume['id'])
+        self.assertEqual(200, resp.status)
+        self.assertEqual(int(volume['size']), extend_size)
+    
+    def test_volume_extend_multi_ops(self):
+        # Extend a volume multiple times
+        for x in range(0, 4):
+            extend_size = int(self.volume['size']) * 2
+            _extend_vol(self, extend_size)
+        def _extend_vol(self, extend_size):
+            resp, body = self.client.extend_volume(self.volume['id'], extend_size)
+            self.assertEqual(202, resp.status)
+            self.client.wait_for_volume_status(self.volume['id'], 'available')
+            resp, volume = self.client.get_volume(self.volume['id'])
+            self.assertEqual(200, resp.status)
+            self.assertEqual(int(volume['size']), extend_size)
 
     @test.attr(type='gate')
     def test_reserve_unreserve_volume(self):

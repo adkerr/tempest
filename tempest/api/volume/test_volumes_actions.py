@@ -128,7 +128,7 @@ class VolumesActionsTest(base.BaseVolumeV1Test):
         self.assertEqual(int(volume['size']), extend_size)
     
     def test_volume_extend_multi_ops(self):
-        # Extend a volume multiple times
+        # Extend a volume multiple times by various sizes
         def _extend_vol(self, extend_size):
             resp, body = self.client.extend_volume(self.volume['id'], extend_size)
             self.assertEqual(202, resp.status)
@@ -136,8 +136,8 @@ class VolumesActionsTest(base.BaseVolumeV1Test):
             resp, volume = self.client.get_volume(self.volume['id'])
             self.assertEqual(200, resp.status)
             self.assertEqual(int(volume['size']), extend_size)
-        for x in range(1, 5):
-            extend_size = int(self.volume['size']) * int(x)
+        for x in range(0, 5):
+            extend_size = int(self.volume['size']) + 1
             _extend_vol(self, extend_size)
         
 

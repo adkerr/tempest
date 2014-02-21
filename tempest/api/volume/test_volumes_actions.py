@@ -192,6 +192,8 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
         # Delete the test instance
         cls.servers_client.delete_server(cls.server['id'])
         cls.client.wait_for_resource_deletion(cls.server['id'])
+        
+        super(VolumesActionsTestNetApp, cls).tearDownClass()
     
     def test_volume_extend_large_op(self):
         # Extend a volume by a very large amount.

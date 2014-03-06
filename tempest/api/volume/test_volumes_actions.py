@@ -177,10 +177,12 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
         cls.client = cls.volumes_client
 
     def setUp(self):
+        super(VolumesActionsTestNetApp, self).setUp()
         self.volume = self.create_volume()
     
     def tearDown(self):
         self.clear_volumes()
+        super(VolumesActionsTestNetApp, self).tearDown()
 
     def test_volume_extend_segmented_large_op(self):
         # Extend a volume by a very large amount. And force ZAPI to

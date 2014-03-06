@@ -175,35 +175,24 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
     def setUpClass(cls):
         super(VolumesActionsTestNetApp, cls).setUpClass()
         cls.client = cls.volumes_client
-        cls.image_client = cls.os.image_client
 
-        # Create a test shared instance
-        srv_name = data_utils.rand_name(cls.__name__ + '-Instance-')
-        resp, cls.server = cls.servers_client.create_server(srv_name,
-                                                            cls.image_ref,
-                                                            cls.flavor_ref)
-        cls.servers_client.wait_for_server_status(cls.server['id'], 'ACTIVE')
-
-        # Create a test shared volume for attach/detach tests
-        cls.volume = cls.create_volume()
-
-    @classmethod
-    def tearDownClass(cls):
-        # Delete the test instance
-        cls.servers_client.delete_server(cls.server['id'])
-        cls.client.wait_for_resource_deletion(cls.server['id'])
-        
-        super(VolumesActionsTestNetApp, cls).tearDownClass()
+    def setUp(self):
+        self.volume = self.create_volume()
     
-    def test_volume_extend_large_op(self):
-        # Extend a volume by a very large amount.
-        extend_size = int(self.volume['size']) * 200
-        resp, body = self.client.extend_volume(self.volume['id'], extend_size)
-        self.assertEqual(202, resp.status)
-        self.client.wait_for_volume_status(self.volume['id'], 'available')
-        resp, volume = self.client.get_volume(self.volume['id'])
-        self.assertEqual(200, resp.status)
-        self.assertEqual(int(volume['size']), extend_size)
+    def tearDown(self):
+        self.clear_volumes()
+
+    def test_volume_extend_segmented_large_op(self):
+        # Extend a volume by a very large amount. And force ZAPI to
+        # segment LUN into multiple block ranges
+
+        # Extend to size > 8 so that next extend must be segmented
+        extend_size = 9
+        self._extend_vol(extend_size)
+        # Extend to a very large size
+        extend_size = 300
+        self._extend_vol(extend_size)
+        
     
     def _extend_vol(self, extend_size):
         resp, body = self.client.extend_volume(self.volume['id'], extend_size)
@@ -211,7 +200,7 @@ class VolumesActionsTestNetApp(base.BaseVolumeV1Test):
         self.client.wait_for_volume_status(self.volume['id'], 'available')
         resp, volume = self.client.get_volume(self.volume['id'])
         self.assertEqual(200, resp.status)
-        self.assertEqual(int(volume['size']), extend_size)
+        self.assertEqual(extend_size, int(volume['size']))
     
     def test_volume_extend_multi_ops(self):
         # Extend a volume multiple times by various sizes
